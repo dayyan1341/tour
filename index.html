@@ -1759,10 +1759,11 @@
                 video.controls = true;
                 video.autoplay = true; // boolean ensures proper behavior
                 video.muted = true; // muted is required for autoplay in many browsers
+                video.loop = true
                 video.playsInline = true;
                 video.style.width = "100%";
                 video.style.height = "100%";
-                video.style.objectFit = "cover";
+                video.style.objectFit = "contain";
                 const srcEl = document.createElement("source");
                 srcEl.src = videoSrc;
                 // Optional: set type if known: srcEl.type = 'video/mp4';
@@ -3294,3 +3295,4 @@
     </script>
   </body>
 </html>
+
