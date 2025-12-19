@@ -744,6 +744,8 @@
       .gallery-hero {
         border-radius: 1.2rem;
         overflow: hidden;
+        /* cap the hero height so thumbnails are scrollable and the video doesn't stretch */
+        max-height: 560px;
       }
       .video-card {
         background-size: cover;
@@ -764,6 +766,15 @@
       }
       .video-card:hover {
         transform: translateY(-4px);
+      }
+
+      .video-player {
+        width: 100%;
+        height: 100%;
+        min-height: 360px;
+        display: block;
+        object-fit: cover;
+        border-radius: 1rem;
       }
 
       .play-btn {
@@ -804,7 +815,7 @@
         flex-direction: column;
         gap: 0.9rem;
         /* limit height so thumbnails never overflow/overlap hero */
-        max-height: 360px;
+        max-height: 560px; /* match hero cap */
         overflow-y: auto;
         padding-right: 6px; /* room for scrollbar */
         scroll-snap-type: y mandatory;
@@ -883,13 +894,18 @@
           grid-template-columns: minmax(0, 1fr) 340px;
           gap: 1.6rem;
         }
-        .video-card {
+        /* cap the hero/player height on desktop so the video keeps its aspect */
+        .gallery-hero {
+          max-height: 560px;
+        }
+        .video-player {
           min-height: 560px;
           height: 100%;
+          object-fit: cover; /* fill card nicely without vertical stretch */
         }
         .gallery-thumbs {
           height: 100%;
-          max-height: none;
+          max-height: 560px; /* keep thumbs scrollable within the same cap */
           overflow-y: auto;
         }
         .thumb {
@@ -1769,273 +1785,46 @@
 
         <div class="gallery-grid">
           <div class="gallery-hero glass-card">
-            <div
-              class="video-card"
-              role="button"
-              tabindex="0"
-              aria-label="Play fleet video"
-              data-video="video.mp4"
-              style="background-image: url('1.jpeg')"
-            >
-              <button class="play-btn" aria-label="Play" title="Play">
-                <svg
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path d="M5 3v18l15-9L5 3z" fill="currentColor"></path>
-                </svg>
-              </button>
-
-              <div class="media-overlay">
-                <h4 class="media-title">
-                  CHAUDHARY TRAVELS — Fleet Highlights
-                </h4>
-                <p class="media-sub">A quick look at our signature fleets</p>
-              </div>
-            </div>
+            <video
+              class="video-player"
+              src="video.mp4"
+              poster="1.jpeg"
+              loop
+              autoplay
+              muted
+              controls
+              playsinline
+            ></video>
           </div>
 
           <div class="gallery-thumbs" aria-label="Fleet thumbnails">
             <!-- Add your image files to the project and replace these src values (I used 1-8 placeholders) -->
+            <figure class="thumb" data-src="6.jpeg">
+              <img src="6.jpeg" alt="Fleet image 6" />
+            </figure>
+            <figure class="thumb" data-src="4.jpeg">
+              <img src="4.jpeg" alt="Fleet image 4" />
+            </figure>
+            <figure class="thumb" data-src="7.jpeg">
+              <img src="7.jpeg" alt="Fleet image 7" />
+            </figure>
+            <figure class="thumb" data-src="3.jpeg">
+              <img src="3.jpeg" alt="Fleet image 3" />
+            </figure>
+            <figure class="thumb" data-src="5.jpeg">
+              <img src="5.jpeg" alt="Fleet image 5" />
+            </figure>
+            <figure class="thumb" data-src="8.jpeg">
+              <img src="8.jpeg" alt="Fleet image 8" />
+            </figure>
             <figure class="thumb" data-src="1.jpeg">
               <img src="1.jpeg" alt="Fleet image 1" />
             </figure>
             <figure class="thumb" data-src="2.jpeg">
               <img src="2.jpeg" alt="Fleet image 2" />
             </figure>
-            <figure class="thumb" data-src="3.jpeg">
-              <img src="3.jpeg" alt="Fleet image 3" />
-            </figure>
-            <figure class="thumb" data-src="4.jpeg">
-              <img src="4.jpeg" alt="Fleet image 4" />
-            </figure>
-            <figure class="thumb" data-src="5.jpeg">
-              <img src="5.jpeg" alt="Fleet image 5" />
-            </figure>
-            <figure class="thumb" data-src="6.jpeg">
-              <img src="6.jpeg" alt="Fleet image 6" />
-            </figure>
-            <figure class="thumb" data-src="7.jpeg">
-              <img src="7.jpeg" alt="Fleet image 7" />
-            </figure>
-            <figure class="thumb" data-src="8.jpeg">
-              <img src="8.jpeg" alt="Fleet image 8" />
-            </figure>
           </div>
         </div>
-
-        <script>
-          (function () {
-            const videoCard = document.querySelector(".video-card");
-            const playBtn = videoCard && videoCard.querySelector(".play-btn");
-            const thumbs = document.querySelectorAll(
-              ".gallery-thumbs .thumb img"
-            );
-
-            function swapPoster(src) {
-              if (!videoCard) return;
-              videoCard.style.backgroundImage = `url('${src}')`;
-              videoCard.dataset.poster = src;
-            }
-
-            // Thumbnails click handler — uses the thumb element (not only the image)
-            const thumbEls = Array.from(
-              document.querySelectorAll(".gallery-thumbs .thumb")
-            );
-            thumbEls.forEach((t) => {
-              const img = t.querySelector("img");
-              if (!img) return;
-              img.addEventListener("click", (e) => {
-                swapPoster(img.src, t);
-                t.scrollIntoView({ behavior: "smooth", block: "center" });
-              });
-            });
-
-            function playVideo() {
-              if (!videoCard) return;
-              const videoSrc = videoCard.dataset.video; // if provided, user can fill it in later
-              if (videoSrc) {
-                const video = document.createElement("video");
-                video.controls = true;
-                video.autoplay = true; // boolean ensures proper behavior
-                video.muted = true; // muted is required for autoplay in many browsers
-                video.loop = true;
-                video.playsInline = true;
-                video.style.width = "100%";
-                video.style.height = "100%";
-                video.style.objectFit = "contain";
-                const srcEl = document.createElement("source");
-                srcEl.src = videoSrc;
-                // Optional: set type if known: srcEl.type = 'video/mp4';
-                video.appendChild(srcEl);
-
-                // replace the poster card with the video element
-                videoCard.innerHTML = "";
-                videoCard.appendChild(video);
-
-                // Attempt to play and handle autoplay policy rejections
-                const playPromise = video.play();
-                if (playPromise && typeof playPromise.then === "function") {
-                  playPromise
-                    .then(() => {
-                      // Autoplay started — do not call focus to avoid unexpected scrolling.
-                      console.log("Video autoplay started");
-                    })
-                    .catch((err) => {
-                      // Autoplay blocked — show controls and a fallback play button (user interaction will start playback)
-                      console.warn("Video autoplay blocked or failed:", err);
-                      video.controls = true;
-
-                      // Add a visible fallback play button so the user can start playback
-                      const fallbackBtn = document.createElement("button");
-                      fallbackBtn.type = "button";
-                      fallbackBtn.className = "play-btn";
-                      fallbackBtn.setAttribute("aria-label", "Play video");
-                      fallbackBtn.title = "Play";
-                      fallbackBtn.innerHTML = `
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                          <path d="M5 3v18l15-9L5 3z" fill="currentColor"></path>
-                        </svg>`;
-                      fallbackBtn.addEventListener("click", () => {
-                        video
-                          .play()
-                          .catch((e) =>
-                            console.error("Play failed on user click", e)
-                          );
-                        fallbackBtn.remove();
-                      });
-                      videoCard.appendChild(fallbackBtn);
-                    });
-                } else {
-                  // Older browsers: do nothing (user will need to start playback explicitly)
-                }
-              } else {
-                // no video provided yet - open poster in new tab as a fallback
-                const poster =
-                  videoCard.dataset.poster ||
-                  (videoCard.style.backgroundImage || "")
-                    .replace(/url\(([^)]+)\)/, "$1")
-                    .replace(/"/g, "");
-                if (poster) window.open(poster, "_blank");
-              }
-            }
-
-            if (playBtn) playBtn.addEventListener("click", playVideo);
-            if (videoCard)
-              videoCard.addEventListener("keydown", (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  playVideo();
-                }
-              });
-
-            // Expose play helpers for safe autoplay attempts from outside the closure
-            try {
-              window.__ct_playVideo = playVideo;
-              window.__ct_videoCard = videoCard;
-              window.__ct_playBtn = playBtn;
-            } catch (err) {}
-          })();
-        </script>
-
-        <script>
-          // Simplified: attempt autoplay only once when the video card becomes visible.
-          (function () {
-            const playFn = window.__ct_playVideo;
-            const videoCard = window.__ct_videoCard;
-            if (!playFn || !videoCard) return;
-            if (!videoCard.dataset.video) return;
-
-            // Use IntersectionObserver to start playback when the card is mostly visible.
-            try {
-              const ob = new IntersectionObserver(
-                (entries, obs) => {
-                  if (entries.some((e) => e.isIntersecting)) {
-                    try {
-                      playFn();
-                    } catch (e) {
-                      console.warn("Autoplay attempt failed", e);
-                    }
-                    obs.disconnect();
-                  }
-                },
-                { threshold: 0.5 }
-              );
-              ob.observe(videoCard);
-            } catch (err) {
-              // No IntersectionObserver: do not attempt autoplay automatically.
-            }
-          })();
-        </script>
-
-        <script>
-          // Enhancements: intersection reveal, wheel-snapping support, default selection
-          (function () {
-            const videoCard = document.querySelector(".video-card");
-            const thumbsContainer = document.querySelector(".gallery-thumbs");
-            const thumbEls = Array.from(
-              document.querySelectorAll(".gallery-thumbs .thumb")
-            );
-
-            // default select first thumb
-            if (thumbEls.length && videoCard) {
-              const firstSrc = thumbEls[0].querySelector("img").src;
-              videoCard.style.backgroundImage = `url('${firstSrc}')`;
-              thumbEls[0].classList.add("selected");
-              videoCard.dataset.poster = firstSrc;
-            }
-
-            // intersection reveal
-            try {
-              const obs = new IntersectionObserver(
-                (entries) => {
-                  entries.forEach((en) => {
-                    if (en.isIntersecting) en.target.classList.add("visible");
-                  });
-                },
-                { root: thumbsContainer, threshold: 0.6 }
-              );
-              thumbEls.forEach((t) => obs.observe(t));
-            } catch (err) {}
-
-            // wheel -> smooth scroll
-            if (thumbsContainer) {
-              thumbsContainer.addEventListener(
-                "wheel",
-                (e) => {
-                  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-                    e.preventDefault();
-                    thumbsContainer.scrollBy({
-                      top: e.deltaY,
-                      behavior: "smooth",
-                    });
-                  }
-                },
-                { passive: false }
-              );
-            }
-
-            // micro entrance using GSAP if available
-            if (window.gsap) {
-              gsap.from(".gallery-hero", {
-                opacity: 0,
-                y: 12,
-                duration: 0.6,
-                ease: "power2.out",
-              });
-              gsap.from(".gallery-thumbs .thumb", {
-                opacity: 0,
-                y: 10,
-                stagger: 0.06,
-                duration: 0.6,
-                ease: "power2.out",
-              });
-            }
-          })();
-        </script>
       </div>
     </section>
 
