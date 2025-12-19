@@ -22,16 +22,32 @@
 
     <style>
       :root {
-        --bg: #050816;
-        --bg-alt: #080c1e;
-        --accent: #ffb347;
-        --accent-soft: rgba(255, 179, 71, 0.15);
-        --accent-2: #6c5ce7;
-        --text-main: #f4f6ff;
-        --text-muted: #a3acc5;
-        --card-bg: rgba(10, 14, 34, 0.9);
-        --border-subtle: rgba(255, 255, 255, 0.08);
-        --blur-bg: rgba(8, 12, 30, 0.7);
+        --bg: #fffff0;
+        --bg-alt: #fff7f6;
+        --primary: #f05d5e;
+        --accent: #d4af37;
+        --accent-soft: rgba(212, 175, 55, 0.12);
+        --accent-2: #f05d5e;
+        --text-main: #1f1f1f;
+        --text-muted: #6b6b6b;
+        --text-on-dark: #ffffff;
+        --text-muted-on-dark: rgba(255, 255, 255, 0.78);
+        --card-bg: rgba(255, 255, 240, 0.92);
+        --border-subtle: rgba(31, 31, 31, 0.06);
+        --blur-bg: rgba(255, 255, 240, 0.85);
+
+        /* background gradient controls (updated via JS on scroll) */
+        --g1-x: 15%;
+        --g1-y: 15%;
+        --g1-opacity: 0.08;
+        --g1-offset-x: 0;
+        --g1-offset-y: 0;
+
+        --g2-x: 85%;
+        --g2-y: 85%;
+        --g2-opacity: 0.08;
+        --g2-offset-x: 0;
+        --g2-offset-y: 0;
       }
 
       * {
@@ -43,13 +59,71 @@
       body {
         font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont,
           sans-serif;
-        background: radial-gradient(circle at 0% 0%, #281b61 0, transparent 50%),
-          radial-gradient(circle at 100% 100%, #ffb347 0, transparent 55%),
-          linear-gradient(135deg, #050816 0%, #050816 50%, #070f23 100%);
+        /* base canvas color; decorative gradients are rendered by .bg-gradients */
+        background: linear-gradient(
+          135deg,
+          var(--bg) 0%,
+          var(--bg-alt) 50%,
+          #fff6f5 100%
+        );
         color: var(--text-main);
         min-height: 100vh;
         scroll-behavior: smooth;
         overflow-x: hidden;
+      }
+
+      /* Two large decorative gradient layers (positioned behind content)
+         Updated via JS using CSS variables for smooth, performant motion */
+      .bg-gradients {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        overflow: hidden;
+      }
+
+      .bg-grad {
+        position: absolute;
+        top: -10%;
+        left: -10%;
+        width: 120%;
+        height: 120%;
+        background-repeat: no-repeat;
+        background-size: cover;
+        will-change: transform, opacity;
+        transition: opacity 280ms linear, transform 340ms linear;
+      }
+
+      .bg-1 {
+        background: radial-gradient(
+          circle at var(--g1-x) var(--g1-y),
+          rgba(240, 93, 94, var(--g1-opacity)) 0%,
+          transparent 40%
+        );
+        filter: blur(80px);
+        opacity: var(--g1-opacity);
+        transform: translate3d(
+            calc(var(--g1-offset-x) * 1px),
+            calc(var(--g1-offset-y) * 1px),
+            0
+          )
+          scale(1.15);
+      }
+
+      .bg-2 {
+        background: radial-gradient(
+          circle at var(--g2-x) var(--g2-y),
+          rgba(212, 175, 55, var(--g2-opacity)) 0%,
+          transparent 40%
+        );
+        filter: blur(120px);
+        opacity: var(--g2-opacity);
+        transform: translate3d(
+            calc(var(--g2-offset-x) * 1px),
+            calc(var(--g2-offset-y) * 1px),
+            0
+          )
+          scale(1.05);
       }
 
       /* ---------- Layout helpers ---------- */
@@ -74,7 +148,7 @@
         text-transform: uppercase;
         background: var(--accent-soft);
         color: var(--accent);
-        border: 1px solid rgba(255, 179, 71, 0.35);
+        border: 1px solid rgba(212, 175, 55, 0.28);
         backdrop-filter: blur(10px);
       }
 
@@ -87,9 +161,10 @@
 
       .section-heading {
         font-size: clamp(2rem, 3vw, 2.4rem);
-        font-weight: 600;
+        font-weight: 700;
         letter-spacing: 0.03em;
         margin-top: 0.75rem;
+        color: var(--primary);
       }
 
       .section-subtitle {
@@ -110,9 +185,10 @@
         background: var(--card-bg);
         border-radius: 1.5rem;
         border: 1px solid var(--border-subtle);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45),
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06),
           0 0 0 1px rgba(255, 255, 255, 0.02);
         backdrop-filter: blur(18px);
+        color: var(--text-main);
       }
 
       .badge {
@@ -140,19 +216,14 @@
         padding: 0.85rem 1.6rem;
         border-radius: 999px;
         font-size: 0.9rem;
-        font-weight: 500;
+        font-weight: 600;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: radial-gradient(
-          circle at 0 0,
-          #ffeaa7 0,
-          #ffb347 40%,
-          #ff7675 100%
-        );
-        color: #1b0b00;
-        box-shadow: 0 12px 30px rgba(255, 179, 71, 0.4),
-          0 0 0 1px rgba(255, 255, 255, 0.2);
+        background: linear-gradient(90deg, var(--primary), var(--accent) 70%);
+        color: #ffffff;
+        box-shadow: 0 12px 30px rgba(240, 93, 94, 0.12),
+          0 0 0 1px rgba(0, 0, 0, 0.04);
         transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
       }
 
@@ -163,30 +234,30 @@
 
       .btn-primary:hover {
         transform: translateY(-2px);
-        filter: brightness(1.03);
-        box-shadow: 0 20px 40px rgba(255, 179, 71, 0.55),
-          0 0 0 1px rgba(255, 255, 255, 0.24);
+        filter: brightness(0.98);
+        box-shadow: 0 20px 40px rgba(240, 93, 94, 0.18),
+          0 0 0 1px rgba(0, 0, 0, 0.06);
       }
 
       .btn-ghost {
         border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(5, 8, 22, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(5, 8, 22, 0.9);
         padding: 0.8rem 1.4rem;
-        color: var(--text-muted);
+        color: #ffffff;
         font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
         cursor: pointer;
-        transition: background 0.2s ease, border-color 0.2s ease,
-          color 0.2s ease, transform 0.2s ease;
+        transition: background 0.18s ease, border-color 0.18s ease,
+          color 0.18s ease, transform 0.18s ease;
       }
 
       .btn-ghost:hover {
         background: rgba(11, 16, 36, 0.95);
         border-color: rgba(255, 255, 255, 0.4);
-        color: var(--text-main);
+        color: var(--primary);
         transform: translateY(-1px);
       }
 
@@ -195,13 +266,13 @@
         position: sticky;
         top: 0;
         z-index: 40;
-        backdrop-filter: blur(24px);
+        backdrop-filter: blur(12px) saturate(120%);
         background: linear-gradient(
           to bottom,
-          rgba(5, 8, 22, 0.9),
-          rgba(5, 8, 22, 0.2)
+          rgba(255, 255, 240, 0.95),
+          rgba(255, 255, 240, 0.85)
         );
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid var(--border-subtle);
       }
 
       .nav {
@@ -223,9 +294,9 @@
         border-radius: 50%;
         background: radial-gradient(
           circle at 30% 20%,
-          #ffeaa7 0,
-          #ffb347 35%,
-          #6c5ce7 90%
+          #fff6e0 0,
+          var(--accent) 35%,
+          var(--primary) 90%
         );
         display: flex;
         align-items: center;
@@ -253,7 +324,7 @@
         align-items: center;
         gap: 1.5rem;
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: var(--text-main);
       }
 
       .nav-links a {
@@ -270,7 +341,7 @@
         bottom: 0;
         width: 0;
         height: 1px;
-        background: linear-gradient(90deg, #ffb347, #6c5ce7);
+        background: linear-gradient(90deg, var(--primary), var(--accent));
         transition: width 0.25s ease;
       }
 
@@ -314,7 +385,7 @@
         border-radius: 999px;
         border: 1px solid rgba(255, 255, 255, 0.12);
         font-size: 0.7rem;
-        color: var(--text-muted);
+        color: var(--text-muted-on-dark);
         background: rgba(5, 8, 22, 0.9);
         margin-top: 1rem;
       }
@@ -327,7 +398,12 @@
       }
 
       .hero-heading span.gradient {
-        background: linear-gradient(120deg, #ffb347, #ffeaa7, #6c5ce7);
+        background: linear-gradient(
+          120deg,
+          var(--primary) 0%,
+          var(--primary) 60%,
+          var(--accent) 100%
+        );
         -webkit-background-clip: text;
         color: transparent;
       }
@@ -372,7 +448,7 @@
         border-radius: 1.6rem;
         background: radial-gradient(
             circle at 0 0,
-            rgba(255, 179, 71, 0.2),
+            rgba(212, 175, 55, 0.2),
             transparent 60%
           ),
           radial-gradient(
@@ -393,13 +469,13 @@
         padding: 1.2rem 1.2rem 1rem;
         background: linear-gradient(
           145deg,
-          #0b1022 0%,
-          #121941 50%,
-          #1b2659 100%
+          #fff9f7 0%,
+          #fff3f2 50%,
+          rgba(240, 93, 94, 0.03) 100%
         );
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.85),
-          0 0 0 1px rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(31, 31, 31, 0.04);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.06),
+          0 0 0 1px rgba(255, 255, 255, 0.02);
         overflow: hidden;
         isolation: isolate;
       }
@@ -421,8 +497,8 @@
             rgba(255, 255, 255, 0.01) 75%,
             rgba(255, 255, 255, 0.09) 100%
           ),
-          linear-gradient(#1b233d 0, #050816 100%);
-        opacity: 0.9;
+          linear-gradient(#fff6f5 0, #fff1ef 100%);
+        opacity: 0.85;
       }
 
       .bus-body {
@@ -474,8 +550,8 @@
       .bus-window {
         height: 38px;
         border-radius: 10px;
-        background: linear-gradient(145deg, #2f3458 0%, #151837 100%);
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        background: linear-gradient(145deg, #f7f7fa 0%, #f0eff3 100%);
+        box-shadow: inset 0 0 0 1px rgba(31, 31, 31, 0.04);
         position: relative;
         overflow: hidden;
       }
@@ -489,7 +565,7 @@
         border-radius: inherit;
         background: linear-gradient(
           135deg,
-          rgba(255, 255, 255, 0.2),
+          rgba(255, 255, 240, 0.55),
           transparent
         );
         opacity: 0.75;
@@ -551,7 +627,7 @@
         font-weight: 500;
         padding: 0.15rem 0.6rem;
         border-radius: 999px;
-        background: linear-gradient(90deg, #ffb347, #ff7675);
+        background: linear-gradient(90deg, var(--accent), var(--primary));
         color: #241313;
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
       }
@@ -573,7 +649,7 @@
 
       .floating-badge span {
         font-size: 0.7rem;
-        color: #ffd1a1;
+        color: var(--accent);
       }
 
       .hero-floating-card {
@@ -684,7 +760,7 @@
         transition: transform 0.18s ease, box-shadow 0.18s ease;
       }
       .video-card:focus {
-        outline: 4px solid rgba(255, 179, 71, 0.12);
+        outline: 4px solid rgba(212, 175, 55, 0.12);
       }
       .video-card:hover {
         transform: translateY(-4px);
@@ -698,12 +774,12 @@
         width: 64px;
         height: 64px;
         border-radius: 999px;
-        background: rgba(255, 179, 71, 0.12);
+        background: rgba(212, 175, 55, 0.12);
         color: var(--accent);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid rgba(255, 179, 71, 0.18);
+        border: 1px solid rgba(212, 175, 55, 0.18);
         backdrop-filter: blur(2px);
         box-shadow: 0 8px 22px rgba(2, 6, 20, 0.5);
       }
@@ -773,7 +849,7 @@
       }
 
       .thumb.selected img {
-        outline: 3px solid rgba(255, 179, 71, 0.12);
+        outline: 3px solid rgba(212, 175, 55, 0.12);
         transform: translateY(-4px) scale(1.02);
       }
 
@@ -862,12 +938,12 @@
         border: 1px solid var(--border-subtle);
         background: radial-gradient(
             circle at 0 0,
-            rgba(108, 92, 231, 0.25),
+            rgba(108, 92, 231, 0.12),
             transparent 60%
           ),
           radial-gradient(
             circle at 100% 100%,
-            rgba(255, 179, 71, 0.25),
+            rgba(212, 175, 55, 0.12),
             transparent 65%
           ),
           rgba(5, 8, 22, 0.98);
@@ -876,6 +952,7 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease,
           border-color 0.3s ease, translate 0.3s ease;
         cursor: pointer;
+        color: var(--text-on-dark);
       }
 
       .bus-card:hover {
@@ -899,7 +976,7 @@
 
       .bus-card-tagline {
         font-size: 0.7rem;
-        color: var(--text-muted);
+        color: var(--text-muted-on-dark);
         margin-top: 0.15rem;
       }
 
@@ -909,6 +986,7 @@
         border-radius: 999px;
         background: rgba(5, 8, 22, 0.95);
         border: 1px solid rgba(255, 255, 255, 0.14);
+        color: var(--text-on-dark);
       }
 
       .bus-card-features {
@@ -924,7 +1002,7 @@
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        color: var(--text-muted);
+        color: var(--text-on-dark);
       }
 
       .bus-card-footer {
@@ -933,7 +1011,7 @@
         align-items: center;
         margin-top: 0.9rem;
         font-size: 0.7rem;
-        color: var(--text-muted);
+        color: var(--text-muted-on-dark);
       }
 
       .bus-price {
@@ -988,12 +1066,12 @@
         border: 1px solid var(--border-subtle);
         background: radial-gradient(
             circle at 0 0,
-            rgba(108, 92, 231, 0.45),
+            rgba(108, 92, 231, 0.12),
             transparent 60%
           ),
           radial-gradient(
             circle at 100% 100%,
-            rgba(255, 179, 71, 0.45),
+            rgba(212, 175, 55, 0.12),
             transparent 60%
           ),
           rgba(5, 8, 22, 0.98);
@@ -1003,6 +1081,7 @@
         cursor: pointer;
         transition: transform 0.25s ease, box-shadow 0.25s ease,
           border-color 0.25s ease;
+        color: var(--text-on-dark);
       }
 
       .destination-card:hover {
@@ -1025,7 +1104,7 @@
 
       .destination-meta {
         font-size: 0.7rem;
-        color: var(--text-muted);
+        color: var(--text-muted-on-dark);
         display: flex;
         justify-content: space-between;
         gap: 0.5rem;
@@ -1034,6 +1113,7 @@
 
       .destination-tags {
         margin-top: 0.4rem;
+
         display: flex;
         flex-wrap: wrap;
         gap: 0.3rem;
@@ -1060,16 +1140,20 @@
       .destination-side-card {
         padding: 1.2rem 1.1rem;
         border-radius: 1.4rem;
-        background: rgba(5, 8, 22, 0.96);
+        /* slightly lighter so text reads more clearly */
+        background: rgba(5, 8, 22, 0.92);
         border: 1px solid rgba(255, 255, 255, 0.12);
         display: flex;
         flex-direction: column;
         gap: 0.75rem;
+        color: var(--text-on-dark);
       }
 
       .destination-side-card h3 {
         font-size: 1rem;
         margin-bottom: 0.1rem;
+        color: var(--primary);
+        font-weight: 700;
       }
 
       .route-list {
@@ -1081,6 +1165,11 @@
         margin-top: 0.5rem;
       }
 
+      .route-city {
+        font-weight: 600;
+        color: var(--text-on-dark);
+      }
+
       .route-list li {
         display: flex;
         justify-content: space-between;
@@ -1090,12 +1179,13 @@
       }
 
       .route-city {
-        font-weight: 500;
+        font-weight: 600;
+        color: var(--text-on-dark);
       }
 
       .route-meta {
         font-size: 0.7rem;
-        color: var(--text-muted);
+        color: var(--text-muted-on-dark);
       }
 
       .route-pill {
@@ -1133,7 +1223,7 @@
         width: 2px;
         background: linear-gradient(
           180deg,
-          rgba(255, 179, 71, 0.1),
+          rgba(212, 175, 55, 0.1),
           rgba(108, 92, 231, 0.8)
         );
       }
@@ -1145,13 +1235,13 @@
 
       .timeline-dot {
         position: absolute;
-        left: -1.1rem;
+        left: -0.5rem;
         top: 0.15rem;
         width: 10px;
         height: 10px;
         border-radius: 50%;
-        background: #ffb347;
-        box-shadow: 0 0 0 5px rgba(255, 179, 71, 0.25);
+        background: var(--accent);
+        box-shadow: 0 0 0 5px rgba(212, 175, 55, 0.25);
       }
 
       .timeline-label {
@@ -1184,11 +1274,12 @@
         gap: 0.75rem;
         font-size: 0.85rem;
         width: 100%;
+        color: var(--text-on-dark);
       }
 
       .stars {
         font-size: 0.9rem;
-        color: #ffd86b;
+        color: var(--accent);
       }
 
       .testimonial-quote {
@@ -1252,7 +1343,7 @@
       }
 
       .carousel-btn:focus {
-        outline: 2px solid rgba(255, 179, 71, 0.24);
+        outline: 2px solid rgba(212, 175, 55, 0.24);
         outline-offset: 2px;
       }
 
@@ -1276,7 +1367,7 @@
 
       .carousel-dot.active {
         background: var(--accent);
-        box-shadow: 0 0 0 4px rgba(255, 179, 71, 0.08);
+        box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.08);
       }
 
       @media (min-width: 900px) {
@@ -1302,9 +1393,9 @@
         border-radius: 999px;
         background: radial-gradient(
           circle at 0 0,
-          #ffeaa7 0,
-          #ffb347 40%,
-          #6c5ce7 100%
+          #fff6e0 0,
+          var(--accent) 40%,
+          var(--primary) 100%
         );
         display: flex;
         align-items: center;
@@ -1324,7 +1415,7 @@
         border-radius: 1.6rem;
         background: radial-gradient(
             circle at 0 0,
-            rgba(255, 179, 71, 0.35),
+            rgba(212, 175, 55, 0.35),
             transparent 60%
           ),
           radial-gradient(
@@ -1343,12 +1434,13 @@
 
       .cta-title {
         font-size: 1.3rem;
-        font-weight: 600;
+        font-weight: 700;
+        color: var(--primary);
       }
 
       .cta-sub {
         font-size: 0.85rem;
-        color: var(--text-muted);
+        color: var(--text-muted-on-dark);
         margin-top: 0.4rem;
         max-width: 380px;
       }
@@ -1362,17 +1454,24 @@
 
       .cta-input-row input {
         border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        background: rgba(5, 8, 22, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.03);
         padding: 0.7rem 1rem;
         font-size: 0.85rem;
         min-width: 220px;
-        color: var(--text-main);
+        color: var(--text-on-dark);
         outline: none;
       }
 
       .cta-input-row input::placeholder {
-        color: rgba(255, 255, 255, 0.4);
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .cta-input-row input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 6px 18px rgba(240, 93, 94, 0.08),
+          0 0 0 4px rgba(240, 93, 94, 0.06);
+        color: var(--text-on-dark);
       }
 
       /* ---------- Footer ---------- */
@@ -1459,13 +1558,17 @@
     </style>
   </head>
   <body>
+    <div class="bg-gradients" aria-hidden="true">
+      <div class="bg-grad bg-1"></div>
+      <div class="bg-grad bg-2"></div>
+    </div>
     <!-- Header / Nav -->
     <header>
       <div class="container nav">
         <div class="brand">
           <div class="brand-logo">CT</div>
           <div>
-            <div class="brand-text-main" style="color: rgb(231, 109, 109)">
+            <div class="brand-text-main" style="color: var(--primary)">
               CHAUDHARY TRAVELS
             </div>
             <div class="brand-text-sub">
@@ -1759,7 +1862,7 @@
                 video.controls = true;
                 video.autoplay = true; // boolean ensures proper behavior
                 video.muted = true; // muted is required for autoplay in many browsers
-                video.loop = true
+                video.loop = true;
                 video.playsInline = true;
                 video.style.width = "100%";
                 video.style.height = "100%";
@@ -1778,17 +1881,17 @@
                 if (playPromise && typeof playPromise.then === "function") {
                   playPromise
                     .then(() => {
-                      // autoplay started successfully
-                      video.focus();
+                      // Autoplay started — do not call focus to avoid unexpected scrolling.
                       console.log("Video autoplay started");
                     })
                     .catch((err) => {
-                      // autoplay blocked — show controls and a fallback play button
+                      // Autoplay blocked — show controls and a fallback play button (user interaction will start playback)
                       console.warn("Video autoplay blocked or failed:", err);
                       video.controls = true;
 
                       // Add a visible fallback play button so the user can start playback
                       const fallbackBtn = document.createElement("button");
+                      fallbackBtn.type = "button";
                       fallbackBtn.className = "play-btn";
                       fallbackBtn.setAttribute("aria-label", "Play video");
                       fallbackBtn.title = "Play";
@@ -1807,8 +1910,7 @@
                       videoCard.appendChild(fallbackBtn);
                     });
                 } else {
-                  // older browsers: try focusing the video
-                  video.focus();
+                  // Older browsers: do nothing (user will need to start playback explicitly)
                 }
               } else {
                 // no video provided yet - open poster in new tab as a fallback
@@ -1840,68 +1942,31 @@
         </script>
 
         <script>
-          // Autoplay attempt: try autoplay on load or when card becomes visible
+          // Simplified: attempt autoplay only once when the video card becomes visible.
           (function () {
-            function attemptAutoplay() {
-              const playFn = window.__ct_playVideo;
-              const videoCard = window.__ct_videoCard;
-              if (!playFn || !videoCard) return;
-              // Only try if a video source is configured
-              if (!videoCard.dataset.video) return;
+            const playFn = window.__ct_playVideo;
+            const videoCard = window.__ct_videoCard;
+            if (!playFn || !videoCard) return;
+            if (!videoCard.dataset.video) return;
 
-              const rect = videoCard.getBoundingClientRect();
-              const visible = rect.top < window.innerHeight && rect.bottom > 0;
-              if (visible) {
-                try {
-                  playFn();
-                } catch (e) {
-                  console.warn("Autoplay failed", e);
-                }
-                return;
-              }
-
-              // Observe visibility and try once when it enters view
-              try {
-                const ob = new IntersectionObserver(
-                  (entries) => {
-                    if (entries.some((en) => en.isIntersecting)) {
-                      try {
-                        playFn();
-                      } catch (e) {
-                        console.warn("Autoplay failed", e);
-                      }
-                      ob.disconnect();
+            // Use IntersectionObserver to start playback when the card is mostly visible.
+            try {
+              const ob = new IntersectionObserver(
+                (entries, obs) => {
+                  if (entries.some((e) => e.isIntersecting)) {
+                    try {
+                      playFn();
+                    } catch (e) {
+                      console.warn("Autoplay attempt failed", e);
                     }
-                  },
-                  { threshold: 0.25 }
-                );
-                ob.observe(videoCard);
-
-                // Safety fallback: try after 2s even if not yet visible
-                setTimeout(() => {
-                  try {
-                    playFn();
-                  } catch (e) {}
-                }, 2000);
-              } catch (err) {
-                // IntersectionObserver not available: try after short delay
-                setTimeout(() => {
-                  try {
-                    playFn();
-                  } catch (e) {}
-                }, 500);
-              }
-            }
-
-            if (
-              document.readyState === "complete" ||
-              document.readyState === "interactive"
-            ) {
-              setTimeout(attemptAutoplay, 200);
-            } else {
-              document.addEventListener("DOMContentLoaded", () =>
-                setTimeout(attemptAutoplay, 200)
+                    obs.disconnect();
+                  }
+                },
+                { threshold: 0.5 }
               );
+              ob.observe(videoCard);
+            } catch (err) {
+              // No IntersectionObserver: do not attempt autoplay automatically.
             }
           })();
         </script>
@@ -2099,7 +2164,7 @@
           <!-- Side card: Popular routes -->
           <aside class="destination-side-card" data-animate="fade-left">
             <h3>Tonight’s most booked routes</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted)">
+            <p style="font-size: 0.8rem; color: var(--text-muted-on-dark)">
               Real-time favourites across CHAUDHARY TRAVELS Trails. Tap a route
               to see live seat maps and suggested playlists.
             </p>
@@ -2515,7 +2580,7 @@
             <p
               style="
                 font-size: 0.7rem;
-                color: var(--text-muted);
+                color: var(--text-muted-on-dark);
                 margin-top: 0.5rem;
               "
             >
@@ -2745,7 +2810,7 @@
           <div>
             <h3 class="modal-title">
               Contact
-              <span style="color: rgb(231, 109, 109)">Chaudhary Travels</span>
+              <span style="color: var(--primary)">Chaudhary Travels</span>
             </h3>
             <p class="modal-subtitle">
               We're available for bookings &amp; inquiries — reach out anytime.
@@ -2849,19 +2914,17 @@
       .modal-content.modal-card {
         width: 100%;
         max-width: 720px;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          rgba(255, 255, 255, 0.01)
-        );
+        /* make modal background solid & readable */
+        background: var(--card-bg);
         padding: 1.45rem;
         border-radius: 1rem;
-        box-shadow: 0 18px 50px rgba(2, 6, 20, 0.7),
-          0 2px 6px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 18px 50px rgba(2, 6, 20, 0.12),
+          0 6px 20px rgba(0, 0, 0, 0.06);
         position: relative;
         transform: translateY(6px) scale(0.995);
         animation: popIn 220ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
         border: 1px solid var(--border-subtle);
+        color: var(--text-main);
       }
 
       @keyframes popIn {
@@ -2905,6 +2968,7 @@
         font-size: 1.4rem;
         font-weight: 700;
         margin-bottom: 0.25rem;
+        color: var(--text-main);
       }
       .modal-subtitle {
         margin: 0;
@@ -2934,17 +2998,19 @@
         gap: 0.9rem;
         align-items: center;
         color: var(--text-main);
+        font-weight: 600;
       }
       .contact-item svg {
         width: 18px;
         height: 18px;
-        color: var(--accent);
+        color: var(--primary);
         flex-shrink: 0;
+        opacity: 0.95;
       }
       .contact-item a {
         color: var(--text-main);
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
       }
       .contact-item span {
         color: var(--text-muted);
@@ -2995,6 +3061,61 @@
         }
       });
     </script>
+
+    <script>
+      // Scroll-driven background gradients
+      (function () {
+        const root = document.documentElement;
+        const prefersReduced = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+
+        function updateGradients() {
+          const scrollY = window.scrollY || document.documentElement.scrollTop;
+          const maxScroll =
+            document.documentElement.scrollHeight - window.innerHeight;
+          const t = maxScroll > 0 ? Math.min(1, scrollY / maxScroll) : 0;
+
+          // move first gradient from top-left toward center-right as you scroll
+          root.style.setProperty("--g1-x", 15 + t * 30 + "%");
+          root.style.setProperty("--g1-y", 15 + t * 10 + "%");
+          root.style.setProperty("--g1-opacity", (0.06 + t * 0.12).toFixed(3));
+          root.style.setProperty("--g1-offset-x", Math.round(t * 30));
+          root.style.setProperty("--g1-offset-y", Math.round(t * 10));
+
+          // move second gradient from bottom-right toward top-left as you scroll
+          root.style.setProperty("--g2-x", 85 - t * 25 + "%");
+          root.style.setProperty("--g2-y", 85 - t * 20 + "%");
+          root.style.setProperty(
+            "--g2-opacity",
+            (0.06 + (1 - t) * 0.12).toFixed(3)
+          );
+          root.style.setProperty("--g2-offset-x", Math.round(-t * 40));
+          root.style.setProperty("--g2-offset-y", Math.round(-t * 20));
+        }
+
+        let ticking = false;
+        function onScroll() {
+          if (prefersReduced) return;
+          if (!ticking) {
+            window.requestAnimationFrame(function () {
+              updateGradients();
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }
+
+        if (!prefersReduced) {
+          window.addEventListener("scroll", onScroll, { passive: true });
+          window.addEventListener("resize", onScroll);
+        }
+
+        // initial
+        updateGradients();
+      })();
+    </script>
+
     <!-- Enquiry Modal (replace your current modal with this) -->
     <div id="enquiry-modal" class="enquiry-modal">
       <form id="enquiry-form" class="enquiry-form">
@@ -3189,18 +3310,13 @@
       .enquiry-form input:focus,
       .enquiry-form textarea:focus {
         border-color: var(--accent);
-        box-shadow: 0 6px 18px rgba(255, 179, 71, 0.12),
-          0 0 0 4px rgba(255, 179, 71, 0.06);
+        box-shadow: 0 6px 18px rgba(212, 175, 55, 0.12),
+          0 0 0 4px rgba(212, 175, 55, 0.06);
       }
       .submit-btn {
         width: 100%;
-        background: radial-gradient(
-          circle at 0 0,
-          #ffeaa7 0,
-          #ffb347 40%,
-          #ff7675 100%
-        );
-        color: #1b0b00;
+        background: linear-gradient(90deg, var(--primary), var(--accent) 70%);
+        color: #ffffff;
         border: none;
         border-radius: 0.75rem;
         padding: 0.95rem 0;
@@ -3209,11 +3325,11 @@
         cursor: pointer;
         margin-top: 0.6rem;
         transition: transform 0.14s ease, box-shadow 0.14s ease;
-        box-shadow: 0 12px 30px rgba(255, 179, 71, 0.12);
+        box-shadow: 0 12px 30px rgba(240, 93, 94, 0.12);
       }
       .submit-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 18px 40px rgba(255, 179, 71, 0.18);
+        box-shadow: 0 18px 40px rgba(212, 175, 55, 0.18);
       }
       .enquiry-status {
         margin-top: 1rem;
@@ -3295,4 +3411,3 @@
     </script>
   </body>
 </html>
-
